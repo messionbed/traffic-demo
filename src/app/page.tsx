@@ -38,7 +38,12 @@ export default function Home() {
               <div className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="text-lg font-semibold">{video.title}</h3>
+                    <h3 className="text-lg font-semibold">
+                      {video.title} 
+                      {video.type === 'shorts' && (
+                        <span className="ml-2 text-sm bg-red-500 text-white px-2 py-1 rounded">Shorts</span>
+                      )}
+                    </h3>
                     <p className="text-gray-600">시청시간: {video.duration}</p>
                     <p className="text-gray-500 text-sm">제공: {video.channel}</p>
                   </div>

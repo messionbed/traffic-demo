@@ -10,6 +10,7 @@ export interface Video {
   duration: string
   channel: string
   description?: string
+  type?: 'video' | 'shorts'
 }
 
 export const videos: Video[] = [
@@ -47,7 +48,18 @@ export const videos: Video[] = [
     points: 180,
     duration: '3:32',
     channel: '고속도로 안전',
-    description: '졸음운전 예방을 위한 실천 방법'
+    description: '졸음운전 예방을 위한 실천 방법',
+    type: 'video'
+  },
+  {
+    id: '5',
+    title: '안전운전 Shorts 테스트',
+    youtubeId: 'SqcY0GlETPk',  // 유명한 Shorts (Marcel the Shell)
+    points: 50,
+    duration: '0:58',
+    channel: '안전운전 Shorts',
+    description: '짧은 교통안전 팁',
+    type: 'shorts'
   }
 ]
 

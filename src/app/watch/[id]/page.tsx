@@ -1,14 +1,22 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 const videos = [
-  { id: '1', title: '차선변경 안전수칙', youtubeId: 'jNQXAC9IVRw', points: 100 },
-  { id: '2', title: '비 오는 날 안전운전', youtubeId: '9bZkp7q19f0', points: 150 },
-  { id: '3', title: '스쿨존 안전운전', youtubeId: 'M7lc1UVf-VE', points: 200 },
-  { id: '4', title: '졸음운전 예방법', youtubeId: 'dQw4w9WgXcQ', points: 180 },
+  { id: '1', title: '차선변경 안전수칙', youtubeId: 'jNQXAC9IVRw', points: 100, type: 'video' },
+  { id: '2', title: '비 오는 날 안전운전', youtubeId: '9bZkp7q19f0', points: 150, type: 'video' },
+  { id: '3', title: '스쿨존 안전운전', youtubeId: 'M7lc1UVf-VE', points: 200, type: 'video' },
+  { id: '4', title: '졸음운전 예방법', youtubeId: 'dQw4w9WgXcQ', points: 180, type: 'video' },
+  { id: '5', title: '안전운전 Shorts 테스트', youtubeId: 'SqcY0GlETPk', points: 50, type: 'shorts' },
 ]
+
+declare global {
+  interface Window {
+    YT: any;
+    onYouTubeIframeAPIReady: () => void;
+  }
+}
 
 export default function WatchPage() {
   const params = useParams()
@@ -17,18 +25,68 @@ export default function WatchPage() {
   const [pointsAdded, setPointsAdded] = useState(false)
   const [showAd, setShowAd] = useState(false)
   const [adCountdown, setAdCountdown] = useState(5)
-  const [manualEnd, setManualEnd] = useState(false)
+  const [playerReady, setPlayerReady] = useState(false)
+  const playerRef = useRef<any>(null)
   
   const video = videos.find(v => v.id === params.id)
 
   useEffect(() => {
-    // 10초 후 수동으로 종료 버튼 표시 (데모용)
-    const timer = setTimeout(() => {
-      setManualEnd(true)
-    }, 10000)
+    if (!video) return
 
-    return () => clearTimeout(timer)
-  }, [])
+    // YouTube IFrame Player API 스크립트 로드
+    if (!window.YT) {
+      const tag = document.createElement('script')
+      tag.src = 'https://www.youtube.com/iframe_api'
+      const firstScriptTag = document.getElementsByTagName('script')[0]
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag)
+    }
+
+    // API 준비 완료 시 플레이어 생성
+    window.onYouTubeIframeAPIReady = () => {
+      playerRef.current = new window.YT.Player('youtube-player', {
+        height: '100%',
+        width: '100%',
+        videoId: video.youtubeId,
+        playerVars: {
+          'autoplay': 0,
+          'controls': 1,
+          'rel': 0,
+          'showinfo': 0,
+          'modestbranding': 1,
+          'playsinline': 1
+        },
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
+      })
+    }
+
+    // 이미 API가 로드되어 있다면 바로 실행
+    if (window.YT && window.YT.Player) {
+      window.onYouTubeIframeAPIReady()
+    }
+
+    return () => {
+      if (playerRef.current && playerRef.current.destroy) {
+        playerRef.current.destroy()
+      }
+    }
+  }, [video])
+
+  const onPlayerReady = (event: any) => {
+    setPlayerReady(true)
+    // 자동 재생 (음소거 상태로)
+    event.target.mute()
+    event.target.playVideo()
+  }
+
+  const onPlayerStateChange = (event: any) => {
+    // 영상 종료 시 (YT.PlayerState.ENDED = 0)
+    if (event.data === 0) {
+      handleVideoEnd()
+    }
+  }
 
   const handleVideoEnd = () => {
     if (pointsAdded) return
@@ -73,7 +131,17 @@ export default function WatchPage() {
     }
   }
 
+  // 수동 완료 버튼 (백업용)
+  const manualComplete = () => {
+    if (!videoEnded) {
+      handleVideoEnd()
+    }
+  }
+
   if (!video) return <div>영상을 찾을 수 없습니다</div>
+
+  // Shorts인 경우 세로형 레이아웃
+  const isShorts = video.type === 'shorts'
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -83,30 +151,27 @@ export default function WatchPage() {
 
       <main className="max-w-4xl mx-auto p-4">
         <div className="bg-white rounded-lg shadow-lg p-4">
-          <div className="w-full aspect-video bg-black rounded-lg">
-            <iframe
-              width="100%"
-              height="100%"
-              src={`https://www.youtube.com/embed/${video.youtubeId}`}
-              title={video.title}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-              className="rounded-lg"
-            ></iframe>
+          {/* YouTube Player Container */}
+          <div className={`relative bg-black rounded-lg overflow-hidden mx-auto ${
+            isShorts ? 'max-w-sm' : 'w-full'
+          }`}>
+            <div className={isShorts ? 'aspect-[9/16]' : 'aspect-video'}>
+              <div id="youtube-player"></div>
+            </div>
           </div>
           
           <div className="mt-4 text-center">
             <p className="text-gray-600 mb-4">
-              영상을 시청하고 아래 버튼을 클릭하면 {video.points}포인트를 받을 수 있습니다!
+              {isShorts ? 'Shorts' : '영상'}을 끝까지 시청하면 {video.points}포인트를 받을 수 있습니다!
             </p>
             
-            {manualEnd && !videoEnded && (
+            {/* 디버그용: 수동 완료 버튼 */}
+            {!videoEnded && playerReady && (
               <button 
-                onClick={handleVideoEnd}
-                className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 mb-4"
+                onClick={manualComplete}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-600 mb-4"
               >
-                시청 완료! 포인트 받기
+                (테스트) 수동으로 완료하기
               </button>
             )}
             
