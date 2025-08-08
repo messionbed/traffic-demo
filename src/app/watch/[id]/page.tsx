@@ -8,7 +8,8 @@ const videos = [
   { id: '2', title: '비 오는 날 안전운전', youtubeId: '9bZkp7q19f0', points: 150, type: 'video' },
   { id: '3', title: '스쿨존 안전운전', youtubeId: 'M7lc1UVf-VE', points: 200, type: 'video' },
   { id: '4', title: '졸음운전 예방법', youtubeId: 'dQw4w9WgXcQ', points: 180, type: 'video' },
-  { id: '5', title: '안전운전 Shorts 테스트', youtubeId: 'BvQ571eAOZE', points: 50, type: 'shorts' },
+  { id: '5', title: '안전운전 Shorts 테스트', youtubeId: 'JE3eVU7AiFc', points: 50, type: 'shorts' },
+  { id: '6', title: '교통안전 Shorts #2', youtubeId: '1ZhtwInuOD0', points: 40, type: 'shorts' },
 ]
 
 declare global {

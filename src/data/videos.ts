@@ -54,11 +54,21 @@ export const videos: Video[] = [
   {
     id: '5',
     title: '안전운전 Shorts 테스트',
-    youtubeId: 'BvQ571eAOZE',  // 실제 YouTube Shorts
+    youtubeId: 'JE3eVU7AiFc',  // 실제 YouTube Shorts (https://www.youtube.com/shorts/JE3eVU7AiFc)
     points: 50,
-    duration: '0:59',
+    duration: '0:30',
     channel: '안전운전 Shorts',
     description: '짧은 교통안전 팁',
+    type: 'shorts'
+  },
+  {
+    id: '6',
+    title: '교통안전 Shorts #2',
+    youtubeId: '1ZhtwInuOD0',  // 또 다른 Shorts 예시
+    points: 40,
+    duration: '0:45',
+    channel: '안전 팁',
+    description: '빠른 안전 팁',
     type: 'shorts'
   }
 ]
