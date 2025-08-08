@@ -4,10 +4,10 @@ import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 const videos = [
-  { id: '1', title: '차선변경 안전수칙', youtubeId: 'M9Z3mNq-_GU', points: 100 },
-  { id: '2', title: '비 오는 날 안전운전', youtubeId: 'bTpGX84r9lw', points: 150 },
-  { id: '3', title: '스쿨존 30 지키기', youtubeId: 'OZ4bVJLlBFo', points: 200 },
-  { id: '4', title: '졸음운전 예방법', youtubeId: '6fEeAjNjfHE', points: 180 },
+  { id: '1', title: '차선변경 안전수칙', youtubeId: 'QQkfuFWUroM', points: 100 },
+  { id: '2', title: '비 오는 날 안전운전', youtubeId: 'BHACKCNDMW8', points: 150 },
+  { id: '3', title: '스쿨존 안전운전', youtubeId: 'fDCPSYvHQ94', points: 200 },
+  { id: '4', title: '졸음운전 예방법', youtubeId: '48gwKhZQPg4', points: 180 },
 ]
 
 export default function WatchPage() {
@@ -17,36 +17,18 @@ export default function WatchPage() {
   const [pointsAdded, setPointsAdded] = useState(false)
   const [showAd, setShowAd] = useState(false)
   const [adCountdown, setAdCountdown] = useState(5)
-  const [player, setPlayer] = useState<any>(null)
+  const [manualEnd, setManualEnd] = useState(false)
   
   const video = videos.find(v => v.id === params.id)
 
   useEffect(() => {
-    if (!video) return
+    // 10초 후 수동으로 종료 버튼 표시 (데모용)
+    const timer = setTimeout(() => {
+      setManualEnd(true)
+    }, 10000)
 
-    // YouTube Player API 로드
-    const tag = document.createElement('script')
-    tag.src = 'https://www.youtube.com/iframe_api'
-    document.body.appendChild(tag)
-
-    // @ts-ignore
-    window.onYouTubeIframeAPIReady = () => {
-      // @ts-ignore
-      const ytPlayer = new window.YT.Player('youtube-player', {
-        height: '360',
-        width: '640',
-        videoId: video.youtubeId,
-        events: {
-          onStateChange: (event: any) => {
-            if (event.data === 0) { // 영상 종료
-              handleVideoEnd()
-            }
-          }
-        }
-      })
-      setPlayer(ytPlayer)
-    }
-  }, [video])
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleVideoEnd = () => {
     if (pointsAdded) return
@@ -101,12 +83,32 @@ export default function WatchPage() {
 
       <main className="max-w-4xl mx-auto p-4">
         <div className="bg-white rounded-lg shadow-lg p-4">
-          <div id="youtube-player" className="w-full aspect-video bg-black rounded-lg"></div>
+          <div className="w-full aspect-video bg-black rounded-lg">
+            <iframe
+              width="100%"
+              height="100%"
+              src={`https://www.youtube.com/embed/${video.youtubeId}`}
+              title={video.title}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="rounded-lg"
+            ></iframe>
+          </div>
           
           <div className="mt-4 text-center">
             <p className="text-gray-600 mb-4">
-              영상을 끝까지 시청하면 {video.points}포인트를 받을 수 있습니다!
+              영상을 시청하고 아래 버튼을 클릭하면 {video.points}포인트를 받을 수 있습니다!
             </p>
+            
+            {manualEnd && !videoEnded && (
+              <button 
+                onClick={handleVideoEnd}
+                className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 mb-4"
+              >
+                시청 완료! 포인트 받기
+              </button>
+            )}
             
             {videoEnded && !showAd && (
               <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">

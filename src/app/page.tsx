@@ -2,13 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-
-const videos = [
-  { id: '1', title: '차선변경 안전수칙', youtubeId: 'M9Z3mNq-_GU', points: 100, duration: '1:32', channel: '도로교통공단' },
-  { id: '2', title: '비 오는 날 안전운전', youtubeId: 'bTpGX84r9lw', points: 150, duration: '2:45', channel: '한국교통안전공단' },
-  { id: '3', title: '스쿨존 30 지키기', youtubeId: 'OZ4bVJLlBFo', points: 200, duration: '1:15', channel: '행정안전부' },
-  { id: '4', title: '졸음운전 예방법', youtubeId: '6fEeAjNjfHE', points: 180, duration: '3:20', channel: '한국도로공사' },
-]
+import { videos } from '@/data/videos'
 
 export default function Home() {
   const [points, setPoints] = useState(0)
