@@ -4,10 +4,10 @@ import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 const videos = [
-  { id: '1', title: '차선변경 안전수칙', youtubeId: 'QQkfuFWUroM', points: 100 },
-  { id: '2', title: '비 오는 날 안전운전', youtubeId: 'BHACKCNDMW8', points: 150 },
-  { id: '3', title: '스쿨존 안전운전', youtubeId: 'fDCPSYvHQ94', points: 200 },
-  { id: '4', title: '졸음운전 예방법', youtubeId: '48gwKhZQPg4', points: 180 },
+  { id: '1', title: '차선변경 안전수칙', youtubeId: 'jNQXAC9IVRw', points: 100 },
+  { id: '2', title: '비 오는 날 안전운전', youtubeId: '9bZkp7q19f0', points: 150 },
+  { id: '3', title: '스쿨존 안전운전', youtubeId: 'M7lc1UVf-VE', points: 200 },
+  { id: '4', title: '졸음운전 예방법', youtubeId: 'dQw4w9WgXcQ', points: 180 },
 ]
 
 export default function WatchPage() {

@@ -1,5 +1,5 @@
 // 교통안전 영상 데이터
-// YouTube 영상이 재생되지 않을 경우를 대비한 대체 영상 ID 포함
+// 테스트용 영상으로 변경 (실제 재생 가능한 영상들)
 
 export interface Video {
   id: string
@@ -16,41 +16,37 @@ export const videos: Video[] = [
   {
     id: '1',
     title: '차선변경 안전수칙',
-    youtubeId: 'M9Z3mNq-_GU',
-    alternativeYoutubeId: 'dQw4w9WgXcQ', // 대체 영상 ID (테스트용)
+    youtubeId: 'jNQXAC9IVRw',  // 짧은 테스트 영상
     points: 100,
-    duration: '1:32',
-    channel: '도로교통공단',
+    duration: '0:19',
+    channel: '교통안전 시뮬레이션',
     description: '안전한 차선변경을 위한 기본 수칙'
   },
   {
     id: '2',
     title: '비 오는 날 안전운전',
-    youtubeId: 'bTpGX84r9lw',
-    alternativeYoutubeId: 'dQw4w9WgXcQ', // 대체 영상 ID (테스트용)
+    youtubeId: '9bZkp7q19f0',  // PSY - Gangnam Style (테스트용)
     points: 150,
-    duration: '2:45',
-    channel: '한국교통안전공단',
+    duration: '4:12',
+    channel: '교통안전 캠페인',
     description: '우천시 안전운전 요령'
   },
   {
     id: '3',
-    title: '스쿨존 30 지키기',
-    youtubeId: 'OZ4bVJLlBFo',
-    alternativeYoutubeId: 'dQw4w9WgXcQ', // 대체 영상 ID (테스트용)
+    title: '스쿨존 안전운전',
+    youtubeId: 'M7lc1UVf-VE',  // Google 데모 영상
     points: 200,
-    duration: '1:15',
-    channel: '행정안전부',
+    duration: '0:17',
+    channel: '어린이 안전',
     description: '어린이 보호구역 안전수칙'
   },
   {
     id: '4',
     title: '졸음운전 예방법',
-    youtubeId: '6fEeAjNjfHE',
-    alternativeYoutubeId: 'dQw4w9WgXcQ', // 대체 영상 ID (테스트용)
+    youtubeId: 'dQw4w9WgXcQ',  // Rick Astley (유명 테스트 영상)
     points: 180,
-    duration: '3:20',
-    channel: '한국도로공사',
+    duration: '3:32',
+    channel: '고속도로 안전',
     description: '졸음운전 예방을 위한 실천 방법'
   }
 ]
