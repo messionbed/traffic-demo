@@ -4,9 +4,10 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 const videos = [
-  { id: '1', title: '초보운전 필수 팁', youtubeId: 'JgHDWpJwfKQ', points: 100, duration: '3:32' },
-  { id: '2', title: '안전한 차선변경 방법', youtubeId: 'JgHDWpJwfKQ', points: 150, duration: '5:20' },
-  { id: '3', title: '주차 마스터 되기', youtubeId: 'JgHDWpJwfKQ', points: 200, duration: '4:15' },
+  { id: '1', title: '차선변경 안전수칙', youtubeId: 'M9Z3mNq-_GU', points: 100, duration: '1:32', channel: '도로교통공단' },
+  { id: '2', title: '비 오는 날 안전운전', youtubeId: 'bTpGX84r9lw', points: 150, duration: '2:45', channel: '한국교통안전공단' },
+  { id: '3', title: '스쿨존 30 지키기', youtubeId: 'OZ4bVJLlBFo', points: 200, duration: '1:15', channel: '행정안전부' },
+  { id: '4', title: '졸음운전 예방법', youtubeId: '6fEeAjNjfHE', points: 180, duration: '3:20', channel: '한국도로공사' },
 ]
 
 export default function Home() {
@@ -45,6 +46,7 @@ export default function Home() {
                   <div>
                     <h3 className="text-lg font-semibold">{video.title}</h3>
                     <p className="text-gray-600">시청시간: {video.duration}</p>
+                    <p className="text-gray-500 text-sm">제공: {video.channel}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-bold text-blue-600">+{video.points}P</p>
