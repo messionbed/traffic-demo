@@ -54,9 +54,9 @@ export const videos: Video[] = [
   {
     id: '5',
     title: '안전운전 Shorts 테스트',
-    youtubeId: 'SqcY0GlETPk',  // 유명한 Shorts (Marcel the Shell)
+    youtubeId: 'BvQ571eAOZE',  // 실제 YouTube Shorts
     points: 50,
-    duration: '0:58',
+    duration: '0:59',
     channel: '안전운전 Shorts',
     description: '짧은 교통안전 팁',
     type: 'shorts'
