@@ -77,9 +77,7 @@ export default function WatchPage() {
 
   const onPlayerReady = (event: any) => {
     setPlayerReady(true)
-    // 자동 재생 (음소거 상태로)
-    event.target.mute()
-    event.target.playVideo()
+    // 자동재생 제거 - 사용자가 직접 재생 버튼 클릭해야 조회수 반영
   }
 
   const onPlayerStateChange = (event: any) => {
@@ -164,6 +162,8 @@ export default function WatchPage() {
           <div className="mt-4 text-center">
             <p className="text-gray-600 mb-4">
               {isShorts ? 'Shorts' : '영상'}을 끝까지 시청하면 {video.points}포인트를 받을 수 있습니다!
+              <br />
+              <span className="text-sm text-blue-600 font-semibold">👆 위 영상의 재생 버튼을 클릭해주세요</span>
             </p>
             
             {/* 디버그용: 수동 완료 버튼 */}
