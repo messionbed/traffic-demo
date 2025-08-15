@@ -2,15 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState, useRef } from 'react'
-
-const videos = [
-  { id: '1', title: '차선변경 안전수칙', youtubeId: 'jNQXAC9IVRw', points: 100, type: 'video' },
-  { id: '2', title: '비 오는 날 안전운전', youtubeId: '9bZkp7q19f0', points: 150, type: 'video' },
-  { id: '3', title: '스쿨존 안전운전', youtubeId: 'M7lc1UVf-VE', points: 200, type: 'video' },
-  { id: '4', title: '졸음운전 예방법', youtubeId: 'dQw4w9WgXcQ', points: 180, type: 'video' },
-  { id: '5', title: '안전운전 Shorts 테스트', youtubeId: 'JE3eVU7AiFc', points: 50, type: 'shorts' },
-  { id: '6', title: '교통안전 Shorts #2', youtubeId: '1ZhtwInuOD0', points: 40, type: 'shorts' },
-]
+import { videos, quizzes, ads } from '@/data/videos'
 
 declare global {
   interface Window {
@@ -25,11 +17,17 @@ export default function WatchPage() {
   const [videoEnded, setVideoEnded] = useState(false)
   const [pointsAdded, setPointsAdded] = useState(false)
   const [showAd, setShowAd] = useState(false)
+  const [showQuiz, setShowQuiz] = useState(false)
   const [adCountdown, setAdCountdown] = useState(5)
   const [playerReady, setPlayerReady] = useState(false)
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
+  const [showResult, setShowResult] = useState(false)
+  const [quizCorrect, setQuizCorrect] = useState(false)
   const playerRef = useRef<any>(null)
   
   const video = videos.find(v => v.id === params.id)
+  const quiz = quizzes.find(q => q.videoId === params.id)
+  const randomAd = ads[Math.floor(Math.random() * ads.length)]
 
   useEffect(() => {
     if (!video) return
@@ -77,7 +75,6 @@ export default function WatchPage() {
 
   const onPlayerReady = (event: any) => {
     setPlayerReady(true)
-    // 자동재생 제거 - 사용자가 직접 재생 버튼 클릭해야 조회수 반영
   }
 
   const onPlayerStateChange = (event: any) => {
@@ -91,9 +88,17 @@ export default function WatchPage() {
     if (pointsAdded) return
     
     setVideoEnded(true)
-    setShowAd(true)
     
-    // 광고 카운트다운
+    // 퀴즈가 있으면 퀴즈 먼저, 없으면 광고
+    if (video?.hasQuiz && quiz) {
+      setShowQuiz(true)
+    } else {
+      setShowAd(true)
+      startAdCountdown()
+    }
+  }
+
+  const startAdCountdown = () => {
     let countdown = 5
     const timer = setInterval(() => {
       countdown--
@@ -107,13 +112,33 @@ export default function WatchPage() {
     }, 1000)
   }
 
+  const handleQuizSubmit = () => {
+    if (selectedAnswer === null || !quiz) return
+    
+    const correct = selectedAnswer === quiz.questions[0].correctAnswer
+    setQuizCorrect(correct)
+    setShowResult(true)
+    
+    // 2초 후 광고로 넘어가기
+    setTimeout(() => {
+      setShowQuiz(false)
+      setShowResult(false)
+      setShowAd(true)
+      startAdCountdown()
+    }, 2000)
+  }
+
   const givePoints = () => {
     if (!video || pointsAdded) return
     
     setPointsAdded(true)
 
+    // 퀴즈 정답 시 보너스 포인트
+    const bonusPoints = quizCorrect ? 50 : 0
+    const totalPoints = video.points + bonusPoints
+
     const currentPoints = parseInt(localStorage.getItem('userPoints') || '0')
-    const newPoints = currentPoints + video.points
+    const newPoints = currentPoints + totalPoints
     localStorage.setItem('userPoints', newPoints.toString())
 
     const watched = JSON.parse(localStorage.getItem('watchedVideos') || '[]')
@@ -130,7 +155,6 @@ export default function WatchPage() {
     }
   }
 
-  // 수동 완료 버튼 (백업용)
   const manualComplete = () => {
     if (!videoEnded) {
       handleVideoEnd()
@@ -139,7 +163,6 @@ export default function WatchPage() {
 
   if (!video) return <div>영상을 찾을 수 없습니다</div>
 
-  // Shorts인 경우 세로형 레이아웃
   const isShorts = video.type === 'shorts'
 
   return (
@@ -162,8 +185,14 @@ export default function WatchPage() {
           <div className="mt-4 text-center">
             <p className="text-gray-600 mb-4">
               {isShorts ? 'Shorts' : '영상'}을 끝까지 시청하면 {video.points}포인트를 받을 수 있습니다!
-              <br />
-              <span className="text-sm text-blue-600 font-semibold">👆 위 영상의 재생 버튼을 클릭해주세요</span>
+              {video.hasQuiz && (
+                <span className="block text-sm text-yellow-600 font-semibold mt-1">
+                  📝 퀴즈 정답 시 +50P 보너스!
+                </span>
+              )}
+              <span className="block text-sm text-blue-600 font-semibold mt-2">
+                👆 위 영상의 재생 버튼을 클릭해주세요
+              </span>
             </p>
             
             {/* 디버그용: 수동 완료 버튼 */}
@@ -176,9 +205,10 @@ export default function WatchPage() {
               </button>
             )}
             
-            {videoEnded && !showAd && (
+            {videoEnded && !showAd && !showQuiz && (
               <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                🎉 축하합니다! {video.points}포인트를 획득했습니다!
+                🎉 축하합니다! {video.points + (quizCorrect ? 50 : 0)}포인트를 획득했습니다!
+                {quizCorrect && <span className="block text-sm mt-1">퀴즈 정답 보너스 +50P!</span>}
               </div>
             )}
             
@@ -192,17 +222,84 @@ export default function WatchPage() {
         </div>
       </main>
 
+      {/* 퀴즈 오버레이 */}
+      {showQuiz && quiz && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-8 max-w-2xl w-full">
+            <h3 className="text-2xl font-bold mb-6">📝 퀴즈 타임!</h3>
+            
+            <div className="mb-6">
+              <p className="text-lg mb-4">{quiz.questions[0].question}</p>
+              
+              <div className="space-y-3">
+                {quiz.questions[0].options.map((option, index) => (
+                  <button
+                    key={index}
+                    onClick={() => !showResult && setSelectedAnswer(index)}
+                    disabled={showResult}
+                    className={`w-full p-4 text-left rounded-lg border-2 transition-colors ${
+                      selectedAnswer === index
+                        ? showResult
+                          ? index === quiz.questions[0].correctAnswer
+                            ? 'border-green-500 bg-green-50'
+                            : 'border-red-500 bg-red-50'
+                          : 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    } ${showResult && index === quiz.questions[0].correctAnswer ? 'border-green-500 bg-green-50' : ''}`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {showResult && (
+              <div className={`p-4 rounded-lg mb-4 ${
+                quizCorrect ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+              }`}>
+                <p className="font-semibold">
+                  {quizCorrect ? '✅ 정답입니다! +50P 보너스!' : '❌ 아쉽네요!'}
+                </p>
+                <p className="text-sm mt-1">{quiz.questions[0].explanation}</p>
+              </div>
+            )}
+
+            {!showResult && (
+              <button
+                onClick={handleQuizSubmit}
+                disabled={selectedAnswer === null}
+                className={`w-full py-3 rounded-lg font-semibold ${
+                  selectedAnswer !== null
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                정답 확인
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* 광고 오버레이 */}
       {showAd && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-2xl w-full mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-8 max-w-2xl w-full">
             <h3 className="text-2xl font-bold mb-4">오늘의 스폰서</h3>
             
-            {/* 광고 이미지 또는 콘텐츠 */}
-            <div className="bg-gray-200 rounded-lg p-8 mb-4 text-center">
-              <p className="text-3xl mb-4">🚗 안전운전 자동차보험</p>
-              <p className="text-lg text-gray-700">무사고 운전자 최대 50% 할인!</p>
-              <p className="text-sm text-gray-600 mt-2">KB손해보험</p>
+            {/* 교통 관련 광고 */}
+            <div className={`rounded-lg p-8 mb-4 text-center ${
+              randomAd.type === 'insurance' ? 'bg-blue-50' :
+              randomAd.type === 'product' ? 'bg-orange-50' : 'bg-green-50'
+            }`}>
+              <p className="text-3xl mb-4">{randomAd.title}</p>
+              <p className="text-lg text-gray-700 mb-4">{randomAd.description}</p>
+              <button className={`px-6 py-2 rounded-lg font-semibold ${
+                randomAd.type === 'insurance' ? 'bg-blue-600 text-white' :
+                randomAd.type === 'product' ? 'bg-orange-600 text-white' : 'bg-green-600 text-white'
+              }`}>
+                {randomAd.cta}
+              </button>
             </div>
             
             <p className="text-gray-600 mb-4 text-center">
